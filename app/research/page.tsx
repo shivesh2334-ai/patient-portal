@@ -99,8 +99,9 @@ export default async function ResearchPage() {
           </div>
           <p className="text-xs text-gray-400 mt-2">
             Google Sheets sync requires <code className="font-mono">GOOGLE_SHEETS_WEBHOOK_URL</code> to be
-            set (see README &ldquo;Google Sheets sync&rdquo; section) — otherwise use the CSV download and
-            import into Sheets manually.
+            set (and <code className="font-mono">GOOGLE_SHEETS_WEBHOOK_SECRET</code> for token protection;
+            see README &ldquo;Google Sheets sync&rdquo; section) — otherwise use the CSV download and import
+            into Sheets manually.
           </p>
         </div>
       </div>

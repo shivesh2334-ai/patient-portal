@@ -15,6 +15,7 @@ function isSheetsSyncPayload(body: unknown): body is SheetsSyncPayload {
 
 export async function POST(req: NextRequest) {
   const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+  const webhookSecret = process.env.GOOGLE_SHEETS_WEBHOOK_SECRET;
   if (!webhookUrl) {
     return NextResponse.json(
       { error: "GOOGLE_SHEETS_WEBHOOK_URL is not configured on the server." },
@@ -37,10 +38,15 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const res = await fetch(webhookUrl, {
+    const targetUrl = new URL(webhookUrl);
+    if (webhookSecret) {
+      targetUrl.searchParams.set("token", webhookSecret);
+    }
+
+    const res = await fetch(targetUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ rows: body.rows }),
     });
     const text = await res.text();
     if (!res.ok) {

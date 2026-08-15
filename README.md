@@ -83,6 +83,11 @@ Portal), as an alternative to manual CSV import.
 2. Extensions → Apps Script, paste:
 ```javascript
 function doPost(e) {
+  const expectedToken = PropertiesService.getScriptProperties().getProperty("WEBHOOK_TOKEN");
+  if (!expectedToken || e.parameter.token !== expectedToken) {
+    return ContentService.createTextOutput("Unauthorized");
+  }
+
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const body = JSON.parse(e.postData.contents);
   const rows = body.rows || [];
@@ -97,13 +102,16 @@ function doPost(e) {
   return ContentService.createTextOutput("OK: " + rows.length + " rows appended");
 }
 ```
-3. Deploy → New deployment → **Web app**. Execute as: Me. Who has access: **Anyone with the link**. Copy the deployment URL.
-4. Treat the deployment URL as a secret. For production use, prefer adding a shared secret/token check inside `doPost(e)` before appending rows, because anyone with the URL can otherwise post data to the Sheet.
+3. In Apps Script, open **Project Settings → Script properties** and add `WEBHOOK_TOKEN` with a long random value.
+4. Deploy → New deployment → **Web app**. Execute as: Me. Who has access: **Anyone with the link**. Copy the deployment URL.
+5. Treat the deployment URL and token as secrets. The app sends the token as a `?token=` query parameter so the Apps Script can reject unauthorized requests.
 
 **2. Wire it into the app:**
 - Add `GOOGLE_SHEETS_WEBHOOK_URL` (the Apps Script deployment URL) as a **server-only**
   environment variable in Vercel — do not prefix it with `NEXT_PUBLIC_`, since it's only
   ever called from the `/api/sheets-sync` server route, not the browser.
+- Add `GOOGLE_SHEETS_WEBHOOK_SECRET` (the same value as the Apps Script
+  `WEBHOOK_TOKEN` script property) as a **server-only** environment variable in Vercel.
 - Redeploy. The "Sync to Google Sheets" button on `/research` will then append every
   de-identified visit row to the Sheet.
 

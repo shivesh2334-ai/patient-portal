@@ -46,6 +46,9 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(payload),
     });
     const text = await res.text();
+    if (text.trim() === "Unauthorized") {
+      return NextResponse.json({ error: "Apps Script webhook rejected the request." }, { status: 502 });
+    }
     if (!res.ok) {
       return NextResponse.json({ error: `Apps Script webhook returned ${res.status}: ${text}` }, { status: 502 });
     }

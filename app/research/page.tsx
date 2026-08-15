@@ -8,7 +8,6 @@ import ConfigNotice from "@/components/ConfigNotice";
 export const dynamic = "force-dynamic";
 
 async function getData() {
-  if (!isSupabaseConfigured) return { patients: [] as Patient[], visits: [] as Visit[] };
   const { data: patients, error: patientsError } = await supabase.from("patients").select("*");
   const { data: visits, error: visitsError } = await supabase.from("visits").select("*").order("visit_date", { ascending: true });
   if (patientsError || visitsError) {

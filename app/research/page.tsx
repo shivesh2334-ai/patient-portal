@@ -1,17 +1,21 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { targetAttainment } from "@/lib/guidelines";
 import ExportButton from "./ExportButton";
+import GoogleSheetsSyncButton from "./GoogleSheetsSyncButton";
+import ConfigNotice from "@/components/ConfigNotice";
 
 export const dynamic = "force-dynamic";
 
 async function getData() {
+  if (!isSupabaseConfigured) return { patients: [] as Patient[], visits: [] as Visit[] };
   const { data: patients } = await supabase.from("patients").select("*");
   const { data: visits } = await supabase.from("visits").select("*").order("visit_date", { ascending: true });
   return { patients: (patients as Patient[]) || [], visits: (visits as Visit[]) || [] };
 }
 
 export default async function ResearchPage() {
+  if (!isSupabaseConfigured) return <ConfigNotice />;
   const { patients, visits } = await getData();
   const byPatient = (id: string) => visits.filter((v) => v.patient_id === id);
 
@@ -89,7 +93,15 @@ export default async function ResearchPage() {
           <p className="text-sm text-gray-600 mb-3">
             One row per visit, joined to baseline demographics/history. Patient name is excluded — <code className="font-mono text-xs">patient_code</code> is the only identifier, suitable for CSV import into Google Sheets or a stats package (R/Python) for baseline-predictor, trend-slope, and time-to-complication modelling.
           </p>
-          <ExportButton rows={rows} />
+          <div className="flex flex-wrap gap-3">
+            <ExportButton rows={rows} />
+            <GoogleSheetsSyncButton rows={rows} />
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            Google Sheets sync requires <code className="font-mono">GOOGLE_SHEETS_WEBHOOK_URL</code> to be
+            set (see README &ldquo;Google Sheets sync&rdquo; section) — otherwise use the CSV download and
+            import into Sheets manually.
+          </p>
         </div>
       </div>
 

@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { computeRiskFlags, ldlTarget, bpTarget, computeBMI } from "@/lib/guidelines";
 import FlagBadge from "@/components/FlagBadge";
 import { HbA1cChart, BPChart, LipidChart } from "@/components/TimelineChart";
+import ConfigNotice from "@/components/ConfigNotice";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ async function getPatient(id: string) {
 }
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
+  if (!isSupabaseConfigured) return <ConfigNotice />;
   const { patient, visits } = await getPatient(params.id);
   if (!patient) {
     return <p>Patient not found.</p>;

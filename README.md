@@ -98,6 +98,7 @@ function doPost(e) {
 }
 ```
 3. Deploy → New deployment → **Web app**. Execute as: Me. Who has access: **Anyone with the link**. Copy the deployment URL.
+4. Treat the deployment URL as a secret. For production use, prefer adding a shared secret/token check inside `doPost(e)` before appending rows, because anyone with the URL can otherwise post data to the Sheet.
 
 **2. Wire it into the app:**
 - Add `GOOGLE_SHEETS_WEBHOOK_URL` (the Apps Script deployment URL) as a **server-only**

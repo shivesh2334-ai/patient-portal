@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (!webhookUrl) {
     return NextResponse.json(
       { error: "GOOGLE_SHEETS_WEBHOOK_URL is not configured on the server." },
-      { status: 400 }
+      { status: 503 }
     );
   }
 

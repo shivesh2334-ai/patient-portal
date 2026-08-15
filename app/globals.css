@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+body {
+  background-color: #FAF7F0;
+  color: #2B2B2B;
+}
+
+.card {
+  @apply bg-white border border-teal-100 rounded-xl shadow-sm p-5;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+}
+.badge-ok { @apply bg-teal-100 text-teal-700; }
+.badge-warn { @apply bg-amber-100 text-amber-500; }
+.badge-alert { @apply bg-rose-100 text-rose-500; }
+
+.btn-primary {
+  @apply bg-teal-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-teal-700 transition-colors;
+}
+.btn-secondary {
+  @apply bg-white border border-teal-600 text-teal-600 px-4 py-2 rounded-lg font-medium hover:bg-teal-50 transition-colors;
+}
+
+.input {
+  @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400;
+}
+.label {
+  @apply block text-xs font-medium text-gray-600 mb-1 mt-3;
+}
+.section-title {
+  @apply font-serif text-lg font-semibold text-teal-700 mt-6 mb-2 border-b border-teal-100 pb-1;
+}

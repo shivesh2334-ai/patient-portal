@@ -73,6 +73,52 @@ judgement — review against full current guideline text per patient.
   history, advice-combination effects on HbA1c/LDL-C change, visit-frequency and
   trend-slope as predictors of therapy escalation).
 
+## Google Sheets sync
+The Research Hub can push de-identified rows straight into a Google Sheet via a
+Google Apps Script Web App webhook (same pattern as your HFpEF Pathway Research
+Portal), as an alternative to manual CSV import.
+
+**1. Create the Sheet + Apps Script:**
+1. Create a new Google Sheet.
+2. Extensions → Apps Script, paste:
+```javascript
+function doPost(e) {
+  const expectedToken = PropertiesService.getScriptProperties().getProperty("WEBHOOK_TOKEN");
+  const body = JSON.parse(e.postData.contents);
+  if (!expectedToken || body.token !== expectedToken) {
+    return ContentService.createTextOutput("Unauthorized");
+  }
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const rows = body.rows || [];
+  if (rows.length === 0) return ContentService.createTextOutput("No rows");
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(Object.keys(rows[0]));
+  }
+  rows.forEach(function (row) {
+    sheet.appendRow(Object.values(row));
+  });
+  return ContentService.createTextOutput("OK: " + rows.length + " rows appended");
+}
+```
+3. In Apps Script, open **Project Settings → Script properties** and add `WEBHOOK_TOKEN` with a long random value.
+4. Deploy → New deployment → **Web app**. Execute as: Me. Who has access: **Anyone with the link**. Copy the deployment URL.
+5. Treat the deployment URL and token as secrets. The app sends the token in the POST body so the Apps Script can reject unauthorized requests.
+
+**2. Wire it into the app:**
+- Add `GOOGLE_SHEETS_WEBHOOK_URL` (the Apps Script deployment URL) as a **server-only**
+  environment variable in Vercel — do not prefix it with `NEXT_PUBLIC_`, since it's only
+  ever called from the `/api/sheets-sync` server route, not the browser.
+- Add `GOOGLE_SHEETS_WEBHOOK_SECRET` (the same value as the Apps Script
+  `WEBHOOK_TOKEN` script property) as a **server-only** environment variable in Vercel.
+- Redeploy. The "Sync to Google Sheets" button on `/research` will then append every
+  de-identified visit row to the Sheet.
+
+Note: this appends rows on every click rather than deduplicating — for repeated syncs,
+either clear the Sheet first or extend the Apps Script to key off `patient_code` +
+`visit_date` and skip duplicates.
+
 ## Extending this MVP
 This is a working scaffold covering the full requested data model and guideline
 engine. Natural next iterations (say the word and I'll build any of these):

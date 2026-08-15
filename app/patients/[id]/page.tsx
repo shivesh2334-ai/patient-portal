@@ -1,23 +1,28 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { computeRiskFlags, ldlTarget, bpTarget, computeBMI } from "@/lib/guidelines";
 import FlagBadge from "@/components/FlagBadge";
 import { HbA1cChart, BPChart, LipidChart } from "@/components/TimelineChart";
+import ConfigNotice from "@/components/ConfigNotice";
 
 export const dynamic = "force-dynamic";
 
 async function getPatient(id: string) {
-  const { data: patient } = await supabase.from("patients").select("*").eq("id", id).single();
-  const { data: visits } = await supabase
+  const { data: patient, error: patientError } = await supabase.from("patients").select("*").eq("id", id).single();
+  const { data: visits, error: visitsError } = await supabase
     .from("visits")
     .select("*")
     .eq("patient_id", id)
     .order("visit_date", { ascending: true });
+  if (patientError || visitsError) {
+    console.error(`Failed to load patient detail data for ${id}.`, { patientError, visitsError });
+  }
   return { patient: patient as Patient, visits: (visits as Visit[]) || [] };
 }
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
+  if (!isSupabaseConfigured) return <ConfigNotice />;
   const { patient, visits } = await getPatient(params.id);
   if (!patient) {
     return <p>Patient not found.</p>;

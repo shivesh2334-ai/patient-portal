@@ -1,17 +1,23 @@
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { computeRiskFlags } from "@/lib/guidelines";
 import FlagBadge from "@/components/FlagBadge";
+import ConfigNotice from "@/components/ConfigNotice";
 
 export const dynamic = "force-dynamic";
 
 async function getData() {
-  const { data: patients } = await supabase
+  if (!isSupabaseConfigured) return { patients: [] as Patient[], visits: [] as Visit[] };
+  const { data: patients, error: pErr } = await supabase
     .from("patients")
     .select("*")
     .order("created_at", { ascending: false });
-  const { data: visits } = await supabase.from("visits").select("*");
+  const { data: visits, error: vErr } = await supabase.from("visits").select("*");
+  if (pErr || vErr) {
+    console.error("Failed to load dashboard data from Supabase.", { pErr, vErr });
+    return { patients: [] as Patient[], visits: [] as Visit[] };
+  }
   return {
     patients: (patients as Patient[]) || [],
     visits: (visits as Visit[]) || [],
@@ -19,6 +25,7 @@ async function getData() {
 }
 
 export default async function DashboardPage() {
+  if (!isSupabaseConfigured) return <ConfigNotice />;
   const { patients, visits } = await getData();
 
   const visitsByPatient = (id: string) => visits.filter((v) => v.patient_id === id);

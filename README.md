@@ -84,12 +84,12 @@ Portal), as an alternative to manual CSV import.
 ```javascript
 function doPost(e) {
   const expectedToken = PropertiesService.getScriptProperties().getProperty("WEBHOOK_TOKEN");
-  if (!expectedToken || e.parameter.token !== expectedToken) {
+  const body = JSON.parse(e.postData.contents);
+  if (!expectedToken || body.token !== expectedToken) {
     return ContentService.createTextOutput("Unauthorized");
   }
 
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const body = JSON.parse(e.postData.contents);
   const rows = body.rows || [];
   if (rows.length === 0) return ContentService.createTextOutput("No rows");
 
@@ -104,7 +104,7 @@ function doPost(e) {
 ```
 3. In Apps Script, open **Project Settings → Script properties** and add `WEBHOOK_TOKEN` with a long random value.
 4. Deploy → New deployment → **Web app**. Execute as: Me. Who has access: **Anyone with the link**. Copy the deployment URL.
-5. Treat the deployment URL and token as secrets. The app sends the token as a `?token=` query parameter so the Apps Script can reject unauthorized requests.
+5. Treat the deployment URL and token as secrets. The app sends the token in the POST body so the Apps Script can reject unauthorized requests.
 
 **2. Wire it into the app:**
 - Add `GOOGLE_SHEETS_WEBHOOK_URL` (the Apps Script deployment URL) as a **server-only**

@@ -38,21 +38,18 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const targetUrl = new URL(webhookUrl);
-    if (webhookSecret) {
-      targetUrl.searchParams.set("token", webhookSecret);
-    }
+    const payload = webhookSecret ? { rows: body.rows, token: webhookSecret } : { rows: body.rows };
 
-    const res = await fetch(targetUrl, {
+    const res = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rows: body.rows }),
+      body: JSON.stringify(payload),
     });
     const text = await res.text();
     if (!res.ok) {
       return NextResponse.json({ error: `Apps Script webhook returned ${res.status}: ${text}` }, { status: 502 });
     }
-    return NextResponse.json({ ok: true, response: text });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to reach Google Sheets webhook." },

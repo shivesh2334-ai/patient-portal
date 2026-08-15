@@ -9,8 +9,11 @@ export const dynamic = "force-dynamic";
 
 async function getData() {
   if (!isSupabaseConfigured) return { patients: [] as Patient[], visits: [] as Visit[] };
-  const { data: patients } = await supabase.from("patients").select("*");
-  const { data: visits } = await supabase.from("visits").select("*").order("visit_date", { ascending: true });
+  const { data: patients, error: patientsError } = await supabase.from("patients").select("*");
+  const { data: visits, error: visitsError } = await supabase.from("visits").select("*").order("visit_date", { ascending: true });
+  if (patientsError || visitsError) {
+    console.error("Failed to load research data from Supabase.", { patientsError, visitsError });
+  }
   return { patients: (patients as Patient[]) || [], visits: (visits as Visit[]) || [] };
 }
 

@@ -14,7 +14,10 @@ async function getData() {
     .select("*")
     .order("created_at", { ascending: false });
   const { data: visits, error: vErr } = await supabase.from("visits").select("*");
-  if (pErr || vErr) return { patients: [] as Patient[], visits: [] as Visit[] };
+  if (pErr || vErr) {
+    console.error("Failed to load dashboard data from Supabase.", { pErr, vErr });
+    return { patients: [] as Patient[], visits: [] as Visit[] };
+  }
   return {
     patients: (patients as Patient[]) || [],
     visits: (visits as Visit[]) || [],

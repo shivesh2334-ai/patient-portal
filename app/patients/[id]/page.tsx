@@ -9,12 +9,15 @@ import ConfigNotice from "@/components/ConfigNotice";
 export const dynamic = "force-dynamic";
 
 async function getPatient(id: string) {
-  const { data: patient } = await supabase.from("patients").select("*").eq("id", id).single();
-  const { data: visits } = await supabase
+  const { data: patient, error: patientError } = await supabase.from("patients").select("*").eq("id", id).single();
+  const { data: visits, error: visitsError } = await supabase
     .from("visits")
     .select("*")
     .eq("patient_id", id)
     .order("visit_date", { ascending: true });
+  if (patientError || visitsError) {
+    console.error(`Failed to load patient detail data for ${id}.`, { patientError, visitsError });
+  }
   return { patient: patient as Patient, visits: (visits as Visit[]) || [] };
 }
 

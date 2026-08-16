@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured, supabaseConfigError } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { computeRiskFlags, ldlTarget, bpTarget, computeBMI } from "@/lib/guidelines";
 import FlagBadge from "@/components/FlagBadge";
@@ -22,7 +22,7 @@ async function getPatient(id: string) {
 }
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
-  if (!isSupabaseConfigured) return <ConfigNotice />;
+  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
   const { patient, visits } = await getPatient(params.id);
   if (!patient) {
     return <p>Patient not found.</p>;

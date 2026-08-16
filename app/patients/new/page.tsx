@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import ConfigNotice from "@/components/ConfigNotice";
+import { isSupabaseConfigured, supabase, supabaseConfigError } from "@/lib/supabaseClient";
 
 export default function NewPatientPage() {
+  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
+
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

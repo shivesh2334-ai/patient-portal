@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured, supabaseConfigError } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { targetAttainment } from "@/lib/guidelines";
 import ExportButton from "./ExportButton";
@@ -17,7 +17,7 @@ async function getData() {
 }
 
 export default async function ResearchPage() {
-  if (!isSupabaseConfigured) return <ConfigNotice />;
+  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
   const { patients, visits } = await getData();
   const byPatient = (id: string) => visits.filter((v) => v.patient_id === id);
 

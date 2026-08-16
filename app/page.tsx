@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
+import { supabase, isSupabaseConfigured, supabaseConfigError } from "@/lib/supabaseClient";
 import { Patient, Visit } from "@/lib/types";
 import { computeRiskFlags } from "@/lib/guidelines";
 import FlagBadge from "@/components/FlagBadge";
@@ -25,7 +25,7 @@ async function getData() {
 }
 
 export default async function DashboardPage() {
-  if (!isSupabaseConfigured) return <ConfigNotice />;
+  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
   const { patients, visits } = await getData();
 
   const visitsByPatient = (id: string) => visits.filter((v) => v.patient_id === id);

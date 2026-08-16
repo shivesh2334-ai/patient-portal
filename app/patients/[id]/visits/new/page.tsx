@@ -6,8 +6,6 @@ import ConfigNotice from "@/components/ConfigNotice";
 import { isSupabaseConfigured, supabase, supabaseConfigError } from "@/lib/supabaseClient";
 
 export default function NewVisitPage({ params }: { params: { id: string } }) {
-  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
-
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +37,8 @@ export default function NewVisitPage({ params }: { params: { id: string } }) {
     advice_med_class_suggested: "",
     follow_up_urgency: "routine",
   });
+
+  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));

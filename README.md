@@ -13,7 +13,7 @@ Next.js 14 (App Router) · TypeScript · Tailwind CSS · Supabase (Postgres) · 
 ## 1. Supabase setup
 1. Create a free project at supabase.com.
 2. Open **SQL Editor → New query**, paste the contents of `supabase/schema.sql`, and run it.
-3. Go to **Project Settings → API** and copy the **Project URL** and **anon public key**.
+3. Go to **Project Settings → API** and copy the **Project URL** and **anon/publishable public key**. Do **not** use the secret or `service_role` key in this app because the browser-side pages initialize Supabase with `NEXT_PUBLIC_*` variables.
 
 ## 2. Local setup
 ```bash

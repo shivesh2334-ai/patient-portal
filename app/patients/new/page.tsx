@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import ConfigNotice from "@/components/ConfigNotice";
+import { isSupabaseConfigured, supabase, supabaseConfigError } from "@/lib/supabaseClient";
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function NewPatientPage() {
     medications: "",
     ascvd_history: false,
   });
+
+  if (!isSupabaseConfigured) return <ConfigNotice message={supabaseConfigError} />;
 
   function set<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }));

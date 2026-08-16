@@ -43,7 +43,7 @@ export const supabaseConfigError = !rawSupabaseUrl
       : null;
 
 const supabaseUrl = rawSupabaseUrl || "https://placeholder.supabase.co";
-const supabaseAnonKey = supabaseConfigError ? "placeholder-anon-key" : rawSupabaseAnonKey;
+const supabaseAnonKey = supabaseConfigError ? "placeholder-anon-key" : rawSupabaseAnonKey || "placeholder-anon-key";
 
 export const isSupabaseConfigured = supabaseConfigError === null;
 
